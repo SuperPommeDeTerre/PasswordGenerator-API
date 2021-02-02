@@ -1,0 +1,126 @@
+swagger: "2.0"
+info:
+  description: This is the swagger file that goes with our server code
+  version: "1.0.0"
+  title: Swagger REST Article
+  contact:
+    email: "jlanglade@pixbuf.net"
+consumes:
+- "application/json"
+produces:
+- "application/json"
+schemes:
+- "https"
+- "http"
+basePath: "/"
+
+# Paths supported by the server application
+paths:
+  /password:
+    get:
+      tags:
+      - "Password"
+      summary: "Generate strong passwords"
+      description: "A simple API endpoint designed to generate strong passswords"
+      operationId: "app.password.generate"
+      parameters:
+      - name: "length"
+        in: "query"
+        description: "Desired length of passwords"
+        required: False
+        type: "integer"
+        format: "int32"
+        default: 16
+        maximum: 4096
+        minimum: 8
+      - name: "count"
+        in: "query"
+        description: "Desired number of passwords to generate"
+        required: False
+        type: "integer"
+        format: "int32"
+        default: 5
+        maximum: 255
+        minimum: 1
+      - name: "policy"
+        in: "query"
+        required: False
+        content:
+          application/json:
+            schema:
+              $ref: "#/definitions/Policy"
+      produces:
+      - "application/json"
+      responses:
+        "200":
+          description: ""
+          schema:
+            type: "array"
+            items:
+              type: "string"
+  /password/validate:
+    get:
+      tags:
+      - "Password"
+      summary: "Validate a password against a policy"
+      description: "A simple API endpoint designed to generate strong passswords"
+      operationId: "app.password.validate"
+      parameters:
+      - name: "password"
+        in: "query"
+        description: "Password to validate"
+        required: True
+        type: "string"
+      produces:
+      - "application/json"
+      responses:
+        200:
+          description: ""
+          schema:
+            type: "boolean"
+definitions:
+  Constraints:
+    type: "object"
+    description: "Contains password generation constraints"
+    properties:
+      toto:
+        type: "string"
+  Policy:
+    type: "object"
+    description: "Contains policy definition"
+    properties:
+      use_lowercase:
+        type: "boolean"
+        description: "The password must contain lowercase characters"
+        example: True
+        default: True
+      use_uppercase:
+        type: "boolean"
+        description: "The password must contain uppercase characters"
+        example: True
+        default: True
+      use_digits:
+        type: "boolean"
+        description: "The password must contain digits"
+        example: True
+        default: True
+      use_punctuation:
+        type: "boolean"
+        description: "The password must contain punctuation signs"
+        example: True
+        default: True
+      length:
+        type: "object"
+        properties:
+          min:
+            type: "integer"
+            format: "int32"
+            description: "Minimum length of the password"
+            example: 8
+            default: 16
+          max:
+            type: "integer"
+            format: "int32"
+            description: "Maximum length of the password"
+            example: 64
+            default: 2048
