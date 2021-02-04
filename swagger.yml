@@ -17,7 +17,7 @@ basePath: "/"
 # Paths supported by the server application
 paths:
   /password:
-    get:
+    post:
       tags:
       - "Password"
       summary: "Generate strong passwords"
@@ -26,7 +26,7 @@ paths:
       parameters:
       - name: "length"
         in: "query"
-        description: "Desired length of passwords"
+        description: "Length of passwords"
         required: False
         type: "integer"
         format: "int32"
@@ -35,7 +35,7 @@ paths:
         minimum: 8
       - name: "count"
         in: "query"
-        description: "Desired number of passwords to generate"
+        description: "Count of passwords to generate"
         required: False
         type: "integer"
         format: "int32"
@@ -43,12 +43,10 @@ paths:
         maximum: 255
         minimum: 1
       - name: "policy"
-        in: "query"
+        in: "body"
         required: False
-        content:
-          application/json:
-            schema:
-              $ref: "#/definitions/Policy"
+        schema:
+          $ref: "#/definitions/Policy"
       produces:
       - "application/json"
       responses:
@@ -59,7 +57,7 @@ paths:
             items:
               type: "string"
   /password/validate:
-    get:
+    post:
       tags:
       - "Password"
       summary: "Validate a password against a policy"
@@ -71,6 +69,11 @@ paths:
         description: "Password to validate"
         required: True
         type: "string"
+      - name: "policy"
+        in: "body"
+        required: False
+        schema:
+          $ref: "#/definitions/Policy"
       produces:
       - "application/json"
       responses:
@@ -88,27 +91,53 @@ definitions:
   Policy:
     type: "object"
     description: "Contains policy definition"
+    default:
+      lowercase: 1
+      uppercase: 1
+      digits: 1
+      punctuation: 1
+      excluded_chars: ""
+      length:
+        min: 16
+        max: 2048
     properties:
-      use_lowercase:
-        type: "boolean"
-        description: "The password must contain lowercase characters"
-        example: True
-        default: True
-      use_uppercase:
-        type: "boolean"
-        description: "The password must contain uppercase characters"
-        example: True
-        default: True
-      use_digits:
-        type: "boolean"
-        description: "The password must contain digits"
-        example: True
-        default: True
-      use_punctuation:
-        type: "boolean"
-        description: "The password must contain punctuation signs"
-        example: True
-        default: True
+      lowercase:
+        type: "integer"
+        format: "int32"
+        description: "Minimum number of lowercase characters"
+        example: 1
+        default: 1
+        minimum: 0
+        maximum: 4096
+      uppercase:
+        type: "integer"
+        format: "int32"
+        description: "Minimum number of uppercase characters"
+        example: 1
+        default: 1
+        minimum: 0
+        maximum: 4096
+      digits:
+        type: "integer"
+        format: "int32"
+        description: "Minimum number of digits characters"
+        example: 1
+        default: 1
+        minimum: 0
+        maximum: 4096
+      punctuation:
+        type: "integer"
+        format: "int32"
+        description: "Minimum number of punctuation characters"
+        example: 1
+        default: 1
+        minimum: 0
+        maximum: 4096
+      excluded_chars:
+        type: "string"
+        description: "List of characters to exclude front generation"
+        example: "/iL%"
+        default: ""
       length:
         type: "object"
         properties:
@@ -118,9 +147,13 @@ definitions:
             description: "Minimum length of the password"
             example: 8
             default: 16
+            minimum: 8
+            maximum: 4096
           max:
             type: "integer"
             format: "int32"
             description: "Maximum length of the password"
             example: 64
             default: 2048
+            minimum: 8
+            maximum: 4096

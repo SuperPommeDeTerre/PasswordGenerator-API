@@ -9,10 +9,11 @@ PUNCTUATION = string.punctuation
 
 DEFAULTS = {
     'POLICY': {
-        'use_lowercase': True,
-        'use_uppercase': True,
-        'use_digits': True,
-        'use_punctuation': True,
+        'lowercase': 1,
+        'uppercase': 1,
+        'digits': 1,
+        'punctuation': 1,
+        'excluded_chars': '',
         'length': {
             'min': 16,
             'max': 2048
@@ -20,22 +21,28 @@ DEFAULTS = {
     }
 }
 
-def generate(length, count, policy=DEFAULTS['POLICY']):
+def get_chars_for_family(chars, count):
+    '''
+    '''
+    return random.choices(chars, k=count)
+
+def generate(length=16, count=5, policy=DEFAULTS['POLICY']):
     '''
     Generates a random password having the specified length
-    :param length: length of password to be generated. Defaults to DEFAULTS.LENGTH
+    :param length: length of password to be generated. (default: 16)
         if nothing is specified.
     :type length: integer
-    :param count: Number of passwords to generate
+    :param count: Number of passwords to generate (default: 5)
     :type count: integer
     :return: array<string <class 'str'>>
     '''
+    effective_policy = DEFAULTS['POLICY'] | policy
     # create alphanumerical from string constants
     string_constant = ''
-    string_constant += NUMBERS if policy['use_digits'] else ''
-    string_constant += LETTERS_LOWERCASE if policy['use_lowercase'] else ''
-    string_constant += LETTERS_UPPERCASE if policy['use_uppercase'] else ''
-    string_constant += PUNCTUATION if policy['use_punctuation'] else ''
+    string_constant += NUMBERS if effective_policy['digits'] > 0 else ''
+    string_constant += LETTERS_LOWERCASE if effective_policy['lowercase'] > 0 else ''
+    string_constant += LETTERS_UPPERCASE if effective_policy['uppercase'] > 0 else ''
+    string_constant += PUNCTUATION if effective_policy['punctuation'] > 0 else ''
 
     # convert printable from string to list and shuffle
     string_constant = list(string_constant)
@@ -43,12 +50,18 @@ def generate(length, count, policy=DEFAULTS['POLICY']):
 
     return_value = []
     # generate random password and convert to string
-    for i in range(count):
-        random_password = random.choices(string_constant, k=length)
-        random_password = ''.join(random_password)
-        if (not validate(random_password)):
-            i = i - 1
-            continue
+    for _ in range(count):
+        min_password = get_chars_for_family(NUMBERS, effective_policy['digits'])
+        min_password += get_chars_for_family(LETTERS_LOWERCASE, effective_policy['lowercase'])
+        min_password += get_chars_for_family(LETTERS_UPPERCASE, effective_policy['uppercase'])
+        min_password += get_chars_for_family(PUNCTUATION, effective_policy['punctuation'])
+        number_of_chars_to_padd = length - len(min_password)
+        if number_of_chars_to_padd > 0:
+            min_password += random.choices(string_constant, k=number_of_chars_to_padd)
+        # elif len(min_password) > length:
+            
+        random.shuffle(min_password)
+        random_password = ''.join(min_password)
         return_value.append(random_password)
     return return_value
 
@@ -62,17 +75,18 @@ def validate(password, policy=DEFAULTS['POLICY']):
     :type policy: object
     :return: True or False
     '''
+    effective_policy = DEFAULTS['POLICY'] | policy
     is_password_valid = True
-    if len(password) < policy['length']['min']:
+    if len(password) < effective_policy['length']['min']:
         is_password_valid = False
-    if is_password_valid and len(password) > policy['length']['max']:
+    if is_password_valid and len(password) > effective_policy['length']['max']:
         is_password_valid = False
-    if is_password_valid and policy['use_digits'] and re.match('.*[' + NUMBERS + '].*', password) is None:
+    if is_password_valid and effective_policy['digits'] > 0 and re.match('.*[' + NUMBERS + '].*', password) is None:
         is_password_valid = False
-    if is_password_valid and policy['use_lowercase'] and re.match('.*[' + LETTERS_LOWERCASE + '].*', password) is None:
+    if is_password_valid and effective_policy['lowercase'] > 0 and re.match('.*[' + LETTERS_LOWERCASE + '].*', password) is None:
         is_password_valid = False
-    if is_password_valid and policy['use_uppercase'] and re.match('.*[' + LETTERS_UPPERCASE + '].*', password) is None:
+    if is_password_valid and effective_policy['uppercase'] > 0 and re.match('.*[' + LETTERS_UPPERCASE + '].*', password) is None:
         is_password_valid = False
-    if is_password_valid and policy['use_punctuation'] and re.match('.*[' + PUNCTUATION.replace('\\', '\\\\').replace('-', '\\-').replace('[', '\\[').replace(']', '\\]') + '].*', password) is None:
+    if is_password_valid and effective_policy['punctuation'] > 0 and re.match('.*[' + PUNCTUATION.replace('\\', '\\\\').replace('-', '\\-').replace('[', '\\[').replace(']', '\\]') + '].*', password) is None:
         is_password_valid = False
     return is_password_valid
