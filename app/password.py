@@ -18,6 +18,13 @@ DEFAULTS = {
             'min': 16,
             'max': 2048
         }
+    },
+    'CONSTRAINTS': {
+        'lowercase': 1,
+        'uppercase': 1,
+        'digits': 1,
+        'punctuation': 1,
+        'excluded_chars': ''
     }
 }
 
@@ -26,7 +33,7 @@ def get_chars_for_family(chars, count):
     '''
     return random.choices(chars, k=count)
 
-def generate(length=16, count=5, policy=DEFAULTS['POLICY']):
+def generate(length=16, count=5, constraints=DEFAULTS['CONSTRAINTS']):
     '''
     Generates a random password having the specified length
     :param length: length of password to be generated. (default: 16)
@@ -36,13 +43,13 @@ def generate(length=16, count=5, policy=DEFAULTS['POLICY']):
     :type count: integer
     :return: array<string <class 'str'>>
     '''
-    effective_policy = DEFAULTS['POLICY'] | policy
+    effective_constraints = DEFAULTS['CONSTRAINTS'] | constraints
     # create alphanumerical from string constants
     string_constant = ''
-    string_constant += NUMBERS if effective_policy['digits'] > 0 else ''
-    string_constant += LETTERS_LOWERCASE if effective_policy['lowercase'] > 0 else ''
-    string_constant += LETTERS_UPPERCASE if effective_policy['uppercase'] > 0 else ''
-    string_constant += PUNCTUATION if effective_policy['punctuation'] > 0 else ''
+    string_constant += NUMBERS if effective_constraints['digits'] > 0 else ''
+    string_constant += LETTERS_LOWERCASE if effective_constraints['lowercase'] > 0 else ''
+    string_constant += LETTERS_UPPERCASE if effective_constraints['uppercase'] > 0 else ''
+    string_constant += PUNCTUATION if effective_constraints['punctuation'] > 0 else ''
 
     # convert printable from string to list and shuffle
     string_constant = list(string_constant)
@@ -51,10 +58,10 @@ def generate(length=16, count=5, policy=DEFAULTS['POLICY']):
     return_value = []
     # generate random password and convert to string
     for _ in range(count):
-        min_password = get_chars_for_family(NUMBERS, effective_policy['digits'])
-        min_password += get_chars_for_family(LETTERS_LOWERCASE, effective_policy['lowercase'])
-        min_password += get_chars_for_family(LETTERS_UPPERCASE, effective_policy['uppercase'])
-        min_password += get_chars_for_family(PUNCTUATION, effective_policy['punctuation'])
+        min_password = get_chars_for_family(NUMBERS, effective_constraints['digits'])
+        min_password += get_chars_for_family(LETTERS_LOWERCASE, effective_constraints['lowercase'])
+        min_password += get_chars_for_family(LETTERS_UPPERCASE, effective_constraints['uppercase'])
+        min_password += get_chars_for_family(PUNCTUATION, effective_constraints['punctuation'])
         number_of_chars_to_padd = length - len(min_password)
         if number_of_chars_to_padd > 0:
             min_password += random.choices(string_constant, k=number_of_chars_to_padd)

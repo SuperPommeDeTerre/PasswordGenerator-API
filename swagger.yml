@@ -42,11 +42,11 @@ paths:
         default: 5
         maximum: 255
         minimum: 1
-      - name: "policy"
+      - name: "constraints"
         in: "body"
         required: False
         schema:
-          $ref: "#/definitions/Policy"
+          $ref: "#/definitions/Constraints"
       produces:
       - "application/json"
       responses:
@@ -86,8 +86,44 @@ definitions:
     type: "object"
     description: "Contains password generation constraints"
     properties:
-      toto:
+    properties:
+      lowercase:
+        type: "integer"
+        format: "int32"
+        description: "Minimum number of lowercase characters"
+        example: 1
+        default: 1
+        minimum: 0
+        maximum: 4096
+      uppercase:
+        type: "integer"
+        format: "int32"
+        description: "Minimum number of uppercase characters"
+        example: 1
+        default: 1
+        minimum: 0
+        maximum: 4096
+      digits:
+        type: "integer"
+        format: "int32"
+        description: "Minimum number of digits characters"
+        example: 1
+        default: 1
+        minimum: 0
+        maximum: 4096
+      punctuation:
+        type: "integer"
+        format: "int32"
+        description: "Minimum number of punctuation characters"
+        example: 1
+        default: 1
+        minimum: 0
+        maximum: 4096
+      excluded_chars:
         type: "string"
+        description: "List of characters to exclude front generation"
+        example: "/iL%"
+        default: ""
   Policy:
     type: "object"
     description: "Contains policy definition"
