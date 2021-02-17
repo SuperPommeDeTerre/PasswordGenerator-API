@@ -28,21 +28,25 @@ DEFAULTS = {
     }
 }
 
+
 def get_chars_for_family(chars, count):
-    '''
-    '''
+    """
+    """
     return random.choices(chars, k=count)
 
+
 def generate(length=16, count=5, constraints=DEFAULTS['CONSTRAINTS']):
-    '''
+    """
     Generates a random password having the specified length
     :param length: length of password to be generated. (default: 16)
         if nothing is specified.
     :type length: integer
     :param count: Number of passwords to generate (default: 5)
     :type count: integer
+    :param constraints: Constraints to apply to generated passwords
+    :type constraints: dict
     :return: array<string <class 'str'>>
-    '''
+    """
     effective_constraints = DEFAULTS['CONSTRAINTS'] | constraints
     # create alphanumerical from string constants
     string_constant = ''
@@ -62,26 +66,27 @@ def generate(length=16, count=5, constraints=DEFAULTS['CONSTRAINTS']):
         min_password += get_chars_for_family(LETTERS_LOWERCASE, effective_constraints['lowercase'])
         min_password += get_chars_for_family(LETTERS_UPPERCASE, effective_constraints['uppercase'])
         min_password += get_chars_for_family(PUNCTUATION, effective_constraints['punctuation'])
-        number_of_chars_to_padd = length - len(min_password)
-        if number_of_chars_to_padd > 0:
-            min_password += random.choices(string_constant, k=number_of_chars_to_padd)
+        number_of_chars_to_pad = length - len(min_password)
+        if number_of_chars_to_pad > 0:
+            min_password += random.choices(string_constant, k=number_of_chars_to_pad)
         # elif len(min_password) > length:
-            
+
         random.shuffle(min_password)
         random_password = ''.join(min_password)
         return_value.append(random_password)
     return return_value
 
+
 def validate(password, policy=DEFAULTS['POLICY']):
-    '''
+    """
     Validate a password against a policy.
 
     :param password: Password to validate
     :type password: string
     :param policy: Policy to validate against.
-    :type policy: object
+    :type policy: dict
     :return: True or False
-    '''
+    """
     effective_policy = DEFAULTS['POLICY'] | policy
     is_password_valid = True
     if len(password) < effective_policy['length']['min']:
@@ -90,10 +95,15 @@ def validate(password, policy=DEFAULTS['POLICY']):
         is_password_valid = False
     if is_password_valid and effective_policy['digits'] > 0 and re.match('.*[' + NUMBERS + '].*', password) is None:
         is_password_valid = False
-    if is_password_valid and effective_policy['lowercase'] > 0 and re.match('.*[' + LETTERS_LOWERCASE + '].*', password) is None:
+    if is_password_valid and effective_policy['lowercase'] > 0 and re.match('.*[' + LETTERS_LOWERCASE + '].*',
+                                                                            password) is None:
         is_password_valid = False
-    if is_password_valid and effective_policy['uppercase'] > 0 and re.match('.*[' + LETTERS_UPPERCASE + '].*', password) is None:
+    if is_password_valid and effective_policy['uppercase'] > 0 and re.match('.*[' + LETTERS_UPPERCASE + '].*',
+                                                                            password) is None:
         is_password_valid = False
-    if is_password_valid and effective_policy['punctuation'] > 0 and re.match('.*[' + PUNCTUATION.replace('\\', '\\\\').replace('-', '\\-').replace('[', '\\[').replace(']', '\\]') + '].*', password) is None:
+    if is_password_valid and effective_policy['punctuation'] > 0 and re.match(
+            '.*[' + PUNCTUATION.replace('\\', '\\\\').replace('-', '\\-').replace('[', '\\[').replace(']',
+                                                                                                      '\\]') + '].*',
+            password) is None:
         is_password_valid = False
     return is_password_valid

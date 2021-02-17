@@ -21,37 +21,21 @@ paths:
       tags:
       - "Password"
       summary: "Generate strong passwords"
-      description: "A simple API endpoint designed to generate strong passswords"
+      description: "A simple API endpoint designed to generate strong passwords"
       operationId: "app.password.generate"
       parameters:
-      - name: "length"
-        in: "query"
-        description: "Length of passwords"
-        required: False
-        type: "integer"
-        format: "int32"
-        default: 16
-        maximum: 4096
-        minimum: 8
-      - name: "count"
-        in: "query"
-        description: "Count of passwords to generate"
-        required: False
-        type: "integer"
-        format: "int32"
-        default: 5
-        maximum: 255
-        minimum: 1
-      - name: "constraints"
-        in: "body"
+      - in: body
+        name: "constraints"
         required: False
         schema:
           $ref: "#/definitions/Constraints"
+      consumes:
+      - "application/json"
       produces:
       - "application/json"
       responses:
         "200":
-          description: ""
+          description: "Operation successful"
           schema:
             type: "array"
             items:
@@ -61,7 +45,7 @@ paths:
       tags:
       - "Password"
       summary: "Validate a password against a policy"
-      description: "A simple API endpoint designed to generate strong passswords"
+      description: "A simple API endpoint designed to generate strong passwords"
       operationId: "app.password.validate"
       parameters:
       - name: "password"
@@ -85,40 +69,49 @@ definitions:
   Constraints:
     type: "object"
     description: "Contains password generation constraints"
+    default:
+      lowercase: True
+      uppercase: True
+      digits: True
+      punctuation: True
+      excluded_chars: ""
+      length: 16
+      count: 5
     properties:
-    properties:
+      length:
+        description: "Length of passwords"
+        type: "integer"
+        format: "int32"
+        default: 16
+        maximum: 4096
+        minimum: 8
+      count:
+        description: "Count of passwords to generate"
+        type: "integer"
+        format: "int32"
+        default: 5
+        maximum: 255
+        minimum: 1
       lowercase:
-        type: "integer"
-        format: "int32"
-        description: "Minimum number of lowercase characters"
-        example: 1
-        default: 1
-        minimum: 0
-        maximum: 4096
+        type: "boolean"
+        description: "Must contains lowercase characters"
+        example: True
+        default: True
       uppercase:
-        type: "integer"
-        format: "int32"
-        description: "Minimum number of uppercase characters"
-        example: 1
-        default: 1
-        minimum: 0
-        maximum: 4096
+        type: "boolean"
+        description: "Must contains uppercase characters"
+        example: True
+        default: True
       digits:
-        type: "integer"
-        format: "int32"
-        description: "Minimum number of digits characters"
-        example: 1
-        default: 1
-        minimum: 0
-        maximum: 4096
+        type: "boolean"
+        description: "Must contains digits characters"
+        example: True
+        default: True
       punctuation:
-        type: "integer"
-        format: "int32"
-        description: "Minimum number of punctuation characters"
-        example: 1
-        default: 1
-        minimum: 0
-        maximum: 4096
+        type: "boolean"
+        description: "Must contains punctuation characters"
+        example: True
+        default: True
       excluded_chars:
         type: "string"
         description: "List of characters to exclude front generation"
